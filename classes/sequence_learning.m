@@ -1,7 +1,6 @@
 classdef sequence_learning < handle
 
   properties (Constant)
-    num_dots = 500;   % number of dots
     mon_width = 29;   % horizontal dimension of viewable screen (cm)
     mon_dist = 60;    % viewing distance (cm)
     waitframes = 1; % Show new dot-images at each waitframes'th monitor refresh.
@@ -25,7 +24,7 @@ classdef sequence_learning < handle
       try
         init_display(obj);
 
-        obj.apperture = aperture(obj.winRect, obj.ppd, obj.white)
+        obj.apperture = aperture(obj.win, obj.winRect, obj.ppd, obj.fps, obj.white, obj.white)
         
         % display initialized
         presentStimulus(obj, NaN, NaN, NaN);
@@ -35,9 +34,9 @@ classdef sequence_learning < handle
     
       catch
         Priority(0);
-        rethrow (lasterror);
         ShowCursor
         Screen('CloseAll');
+        rethrow (lasterror);
       end
     
     end
@@ -85,13 +84,15 @@ classdef sequence_learning < handle
       while true
     
         if vbl > 0
-          draw(obj.apperture, obj.win);
-          % Screen('DrawingFinished', w); % Tell PTB that no further drawing commands will follow before Screen('Flip')
+          draw(obj.apperture);
+          Screen('DrawingFinished', obj.win); % Tell PTB that no further drawing commands will follow before Screen('Flip')
         end;
     
         if KbCheck 
           break;
         end;
+        
+        move_dots(obj.apperture);
       
         vbl = Screen('Flip', obj.win, vbl + (obj.waitframes-0.5)*obj.ifi);
     
