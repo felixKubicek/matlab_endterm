@@ -1,15 +1,19 @@
 classdef aperture < handle
 
   properties
+    win;
     center;
     fixation;
-    dots;
+    red_dots;
+    green_dots;
     radius_min;
     radius_max;
   end
 
   methods
-    function obj = aperture(win, winRect, ppd, fps, fixation_color, dot_color)
+    function obj = aperture(win, winRect, ppd, fps, fixation_color)
+        
+      obj.win = win;
 
       obj.radius_min = constants.apperture_min_radius * ppd;
       obj.radius_max = constants.apperture_max_radius * ppd;
@@ -21,26 +25,22 @@ classdef aperture < handle
       dot_width = constants.dot_width * ppd;
       dot_pfs = constants.dot_speed * ppd / fps;
       
-      for i = 1:constants.num_dots
-          dots(i) = dot(win, dot_color, dot_width, dot_pfs, obj.radius_min, obj.radius_max, obj.center);
-      end
-      obj.dots = dots;
-      
-      class(obj.dots)
+      obj.red_dots = dotArray(constants.num_dots/2, win, constants.red, dot_width,
+                              dot_pfs, obj.radius_min, obj.radius_max, obj.center);
+                              
+      obj.green_dots = dotArray(constants.num_dots/2, win, constants.green, dot_width,
+                                dot_pfs, obj.radius_min, obj.radius_max, obj.center);
     end
 
     function draw(obj)
       draw(obj.fixation);
-      
-      for i = 1:constants.num_dots
-          draw(obj.dots(i));
-      end
+      draw(obj.red_dots);
+      draw(obj.green_dots);
     end
     
     function move_dots(obj)
-        for i = 1:constants.num_dots
-            move(obj.dots(i))
-        end
+        move(obj.red_dots);
+        move(obj.green_dots);
     end
 
   end
