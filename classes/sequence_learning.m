@@ -15,7 +15,6 @@ classdef sequence_learning < handle
     winRect;
     ifi;
     fps;
-    apperture;
   end
 
   methods
@@ -23,11 +22,9 @@ classdef sequence_learning < handle
       
       try
         init_display(obj);
-
-        obj.apperture = aperture(obj.win, obj.winRect, obj.ppd, obj.fps, obj.white, obj.white)
         
         % display initialized
-        presentStimulus(obj, NaN, NaN, NaN);
+        presentStimulus(obj, constants.red, 0.1, (3*pi)/2);
     
         ShowCursor;
         Screen('CloseAll');
@@ -78,13 +75,17 @@ classdef sequence_learning < handle
     
     
     function presentStimulus(obj, targetColor, coherentFraction, direction)
+        
+        
+      apperture = aperture(obj.win, obj.winRect, obj.ppd, obj.fps, obj.white,
+                           targetColor, coherentFraction, direction);
     
       vbl = 0;
     
       while true
     
         if vbl > 0
-          draw(obj.apperture);
+          draw(apperture);
           Screen('DrawingFinished', obj.win); % Tell PTB that no further drawing commands will follow before Screen('Flip')
         end;
     
@@ -92,7 +93,7 @@ classdef sequence_learning < handle
           break;
         end;
         
-        move_dots(obj.apperture);
+        move_dots(apperture, targetColor, coherentFraction, direction);
       
         vbl = Screen('Flip', obj.win, vbl + (obj.waitframes-0.5)*obj.ifi);
     

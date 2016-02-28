@@ -19,7 +19,7 @@ classdef dotArray < handle
 
   methods
   
-    function obj = dotArray(num_dots, win, color, width, pfs, rmin, rmax, center)
+    function obj = dotArray(num_dots, win, color, width, pfs, rmin, rmax, center, numCoherentDots, coherentDirection)
       obj.num_dots = num_dots;
       obj.win = win;
       obj.color = color;
@@ -31,6 +31,12 @@ classdef dotArray < handle
       % set initial position and direction for all dots
       [obj.x obj.y] = getPositions(obj, num_dots);
       [obj.dx obj.dy] = getDirections(obj, num_dots);
+      
+      % set same direction for coherent dots
+      if numCoherentDots
+        [obj.dx(1:numCoherentDots) obj.dy(1:numCoherentDots)] = pol2cart(coherentDirection*ones(1, numCoherentDots),
+                                                                         obj.pfs*ones(1, numCoherentDots));
+      end
     end
 
     function [x, y] = getPositions(obj, num_positions)

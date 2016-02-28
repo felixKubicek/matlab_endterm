@@ -11,7 +11,7 @@ classdef aperture < handle
   end
 
   methods
-    function obj = aperture(win, winRect, ppd, fps, fixation_color)
+    function obj = aperture(win, winRect, ppd, fps, fixation_color, targetColor, coherentFraction, coherentDirection)
         
       obj.win = win;
 
@@ -25,11 +25,21 @@ classdef aperture < handle
       dot_width = constants.dot_width * ppd;
       dot_pfs = constants.dot_speed * ppd / fps;
       
-      obj.red_dots = dotArray(constants.num_dots/2, win, constants.red, dot_width,
-                              dot_pfs, obj.radius_min, obj.radius_max, obj.center);
-                              
-      obj.green_dots = dotArray(constants.num_dots/2, win, constants.green, dot_width,
-                                dot_pfs, obj.radius_min, obj.radius_max, obj.center);
+      
+      redCoherentDots = greenCoherentDots = 0;
+      % coherent fraction refers to only one dot color (red or green)
+      numCoherentDots = min(round(coherentFraction*(constants.num_dots/2)), constants.num_dots/2);
+      if isequal(targetColor, constants.red)
+        redCoherentDots = numCoherentDots;
+      else
+        greenCoherentDots = numCoherentDots;
+      end
+      
+      obj.red_dots = dotArray(constants.num_dots/2, win, constants.red, dot_width, dot_pfs, obj.radius_min,
+                              obj.radius_max, obj.center, redCoherentDots, coherentDirection);
+                            
+      obj.green_dots = dotArray(constants.num_dots/2, win, constants.green, dot_width, dot_pfs, obj.radius_min,
+                                obj.radius_max, obj.center, greenCoherentDots, coherentDirection);
     end
 
     function draw(obj)
