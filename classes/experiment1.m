@@ -2,35 +2,34 @@ classdef experiment1 < handle
   
   properties
     constants = constants();
-    freq_seq;
-    infreq_seq;
+    seq_gen;
   end
 
   methods
   
   function obj = experiment1(patient_num)
-    % 2 patient groups with opposite frequent/infrequent sequences
-    if mod(patient_num, 2)
-      obj.freq_seq = obj.constants.sequence_a
-      obj.infreq_seq = obj.constants.sequence_b
-    else
-      obj.freq_seq = obj.constants.sequence_b
-      obj.infreq_seq = obj.constants.sequence_a
-    end
+    obj.seq_gen = sequence_fsm(obj.constants, patient_num);
+    %debug_here();
   end
   
-  %function training_phase(obj)
+  function training_phase(obj)
     % 8 blocks, 100 trails each
     % timeout 20.000 ms -> trial invalid
     % 4 response keys ("ö", "ä", ".", "-")
     % feedback in case of wrong answer
     % randomized target color
-   % num_blocks = 8;
-  %  num_trails = 100;
+    
+    num_blocks = 8;
+    num_trails = 100;
+    %target_colors = []
+    
+    
+    
+    
     
     %for curr_block = 1:num_blocks
     %end
-    %end
+  end
   
   %function generate_design(with_sequence, num_trails)
     % generate desing with either with completely random transitions

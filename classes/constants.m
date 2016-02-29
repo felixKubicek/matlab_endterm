@@ -34,6 +34,7 @@ classdef constants < handle
     % 2 sequences (choice of frequent/infrequent sequence depends on patient number)
     sequence_a;
     sequence_b;
+    dot_colors; % colors of dot arrays
   end
   
   methods
@@ -42,8 +43,9 @@ classdef constants < handle
       obj.ll = (3*pi)/4; 
       obj.ul = (5*pi)/4; 
       obj.ur = (7*pi)/4; 
-      obj.sequence_a = [obj.ur obj.lr obj.ul obj.ll]
-      obj.sequence_b = [obj.ur obj.ll obj.ul obj.lr]
+      obj.sequence_a = [obj.ur obj.lr obj.ul obj.ll];
+      obj.sequence_b = [obj.ur obj.ll obj.ul obj.lr];
+      dot_colors = [constants.red, constants.green];
     end
   end
   
