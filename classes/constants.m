@@ -9,6 +9,7 @@ classdef constants < handle
     green = [136, 252, 69]; % green (color of dot group 1)
     dot_width = 0.18; % width in degrees
     dot_speed = 2; % speed (degrees/sec)
+    dot_max_age = 200; % maximal dot age (ms)
     fixation_radius = 0.3;  % radius of fixation point
     fixation_center_radius = 0.1;
     apperture_min_radius = 0.5; % minimum radius of annulus in degrees

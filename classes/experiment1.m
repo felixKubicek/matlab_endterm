@@ -82,11 +82,11 @@ classdef experiment1 < handle
     
         obj.constants.fps = Screen('FrameRate', obj.constants.win);      % frames per second
         obj.constants.ifi = Screen('GetFlipInterval', obj.constants.win);
-    
+
         if obj.constants.fps==0
           obj.constants.fps = 1/obj.constants.ifi;
         end;
-    
+        
         HideCursor; % Hide the mouse cursor
 
         Priority(MaxPriority(obj.constants.win));
