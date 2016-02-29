@@ -19,15 +19,17 @@ classdef dotArray < handle
 
   methods
   
-    function obj = dotArray(num_dots, win, color, width, pfs, rmin, rmax, center, numCoherentDots, coherentDirection)
+    function obj = dotArray(constants, num_dots, color, rmin, rmax, center, numCoherentDots, coherentDirection)
+      obj.win = constants.win;
+      disp('sdfsdf')
       obj.num_dots = num_dots;
-      obj.win = win;
       obj.color = color;
-      obj.width = width;
-      obj.pfs = pfs;
+      obj.width = constants.dot_width * constants.ppd;
+      obj.pfs = constants.dot_speed * constants.ppd / constants.fps;
       obj.rmin = rmin;
       obj.rmax = rmax;
       obj.center = center;
+      
       % set initial position and direction for all dots
       [obj.x obj.y] = getPositions(obj, num_dots);
       [obj.dx obj.dy] = getDirections(obj, num_dots);
