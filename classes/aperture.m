@@ -37,7 +37,7 @@ classdef aperture < handle
       obj.green_dots = dotArray(constants, constants.num_dots/2, constants.green, obj.radius_min,
                                 obj.radius_max, obj.center, greenCoherentDots, coherentDirection);
     end
-
+    
     function draw(obj)
       draw(obj.fixation);
       draw(obj.red_dots);

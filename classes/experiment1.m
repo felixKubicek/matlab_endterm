@@ -16,13 +16,13 @@ classdef experiment1 < handle
     function training_phase(obj)
       % 8 blocks, 100 trails each
       % timeout 20.000 ms -> trial invalid
-      % 4 response keys ("ö", "ä", ".", "-")
+      % 4 response keys ("d", "f", "x", "c")
       % feedback in case of wrong answer
       % randomized target color
       announceTraining(obj.logger);
       
-      num_blocks = 2;
-      num_trails = 5;
+      num_blocks = 1;
+      num_trails = 1;
       
       for block_num = 1:num_blocks
         block_design = generateTrainingBlock(obj.design_gen, num_trails);
@@ -36,34 +36,32 @@ classdef experiment1 < handle
           
           [rt, timeout_exp, correct] = presentStimulus(obj, targetColor, coherentFraction, direction, 10, responseSetCodes);
           logTrainigTrail(obj.logger, block_num, trail_num, rt, timeout_exp, correct);
-          WaitSecs(0.5);  
         end
       end
     end
     
     
     function disp_block_intro(obj, block_num)
+      pause_text =  sprintf ('Pause\nBLOCK %d \nPlease press any Button!\n\n', block_num);
+         
+      ul_help = sprintf('upper_left:  %c\n', obj.constants.direction_keys{constants.ul});
+      ll_help = sprintf('lower_left:  %c\n', obj.constants.direction_keys{constants.ll});
+      ur_help = sprintf('upper_right: %c\n', obj.constants.direction_keys{constants.ur});
+      lr_help = sprintf('lower_right: %c\n', obj.constants.direction_keys{constants.lr});
+      key_help_text = strcat('Direction to key mappings:\n', ul_help, ll_help, ur_help, lr_help);
       
-      pause_text =  sprintf ('Pause\nBLOCK %d \nPlease press any Button!', block_num);
-      DrawFormattedText(obj.constants.win, pause_text, obj.constants.winRect(4)/3, 'center', obj.constants.white);
+      [nx, ny] = DrawFormattedText(obj.constants.win, pause_text, obj.constants.winRect(4)/3, 'center', obj.constants.white);
+      DrawFormattedText(obj.constants.win, key_help_text, nx, ny, obj.constants.white);
       
       Screen('Flip', obj.constants.win);
-      
-      while true
-        if KbCheck 
-          break;
-        end;
-      end;
-      WaitSecs(0.5);
+      waitForAnyKey();
     end
   
   
     function do_experiment(obj)
-            
       try
         init_display(obj);
         % display now initialized
-        
         training_phase(obj);
         
         ShowCursor;
@@ -117,6 +115,11 @@ classdef experiment1 < handle
       
       apperture = aperture(obj.constants, targetColor, coherentFraction, direction);
       
+      % draw only fixation in the beginning and wait for 1 s
+      apperture.fixation.draw()
+      Screen('Flip', obj.constants.win);
+      WaitSecs(1.0);
+      
       vbl_0 = 0;
       vbl = 0;
       
@@ -161,7 +164,6 @@ classdef experiment1 < handle
     
     
     function correct = evaluateResponse(obj, keyName, targetColor, direction, responseSetCodes)
-      %debug_here();
       if isequal(responseSetCodes, KbName(obj.constants.direction_keys))
         correct = obj.constants.direction_keys{direction} == keyName;
       else

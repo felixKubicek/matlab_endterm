@@ -11,7 +11,7 @@ classdef constants < handle
     dot_speed = 2; % speed (degrees/sec)
     dot_max_age = 200; % maximal dot age (ms)
     fixation_radius = 0.3;  % radius of fixation point
-    fixation_center_radius = 0.1;
+    fixation_center_radius = 0.08;
     apperture_min_radius = 0.5; % minimum radius of annulus in degrees
     apperture_max_radius = 5; % maximum radius of annulus in degrees
     coherent_fraction_thresh = 0.5; % fixed coherent fraction threshold
