@@ -1,13 +1,14 @@
 classdef logger < handle
   properties
+    result_filename;
     result_file;
   end
     
   methods
     function obj = logger(patient_num)
       % timestr = strftime('%T_%b_%d\n', localtime(time()));
-      result_filename = sprintf('patient_%d.txt', patient_num);
-      obj.result_file = fopen(result_filename, 'w');
+      obj.result_filename = sprintf('patient_%d.txt', patient_num);
+      obj.result_file = fopen(obj.result_filename, 'w');
     end
     
     
@@ -27,6 +28,7 @@ classdef logger < handle
     
     function close_file(obj)
       fclose ('all');
+      printf('results logged to %s\n', obj.result_filename);
     end
   end
   

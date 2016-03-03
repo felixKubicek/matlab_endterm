@@ -13,6 +13,13 @@ classdef experiment1 < handle
       obj.logger = logger(patient_num);
     end
     
+    
+    %function obj = getCohDisThresh(obj)
+    %end
+    
+    
+    
+    
     function training_phase(obj)
       % 8 blocks, 100 trails each
       % timeout 20.000 ms -> trial invalid
@@ -21,8 +28,8 @@ classdef experiment1 < handle
       % randomized target color
       announceTraining(obj.logger);
       
-      num_blocks = 1;
-      num_trails = 1;
+      num_blocks = 2;
+      num_trails = 5;
       
       for block_num = 1:num_blocks
         block_design = generateTrainingBlock(obj.design_gen, num_trails);
@@ -67,7 +74,6 @@ classdef experiment1 < handle
         ShowCursor;
         Screen('CloseAll');
         close_file(obj.logger);
-    
       catch
         Priority(0);
         ShowCursor
@@ -166,6 +172,8 @@ classdef experiment1 < handle
     function correct = evaluateResponse(obj, keyName, targetColor, direction, responseSetCodes)
       if isequal(responseSetCodes, KbName(obj.constants.direction_keys))
         correct = obj.constants.direction_keys{direction} == keyName;
+      elseif isequal(responseSetCodes, KbName(obj.constants.color_keys))
+        correct = obj.constants.color_keys{targetColor} == keyName;
       else
         correct = NaN;
       end

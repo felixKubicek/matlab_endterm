@@ -52,6 +52,9 @@ classdef constants < handle
       obj.direction_keys{constants.ur} = 'f';
       obj.direction_keys{constants.lr} = 'c';
       
+      obj.color_keys{constants.red} = 'r';
+      obj.color_keys{constants.green} = 't';
+      
       obj.sequence_a = [obj.ur obj.lr obj.ul obj.ll];
       obj.sequence_b = [obj.ur obj.ll obj.ul obj.lr];
       % set specific colors for dots
