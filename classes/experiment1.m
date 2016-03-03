@@ -2,66 +2,85 @@ classdef experiment1 < handle
   
   properties
     constants = constants();
-    seq_gen;
+    design_gen; % generates experimental designs
+    logger; % writes certain experimental results to output file
   end
 
   methods
   
-  function obj = experiment1(patient_num)
-    obj.seq_gen = sequence_fsm(obj.constants, patient_num);
-    %debug_here();
-  end
-  
-  function training_phase(obj)
-    % 8 blocks, 100 trails each
-    % timeout 20.000 ms -> trial invalid
-    % 4 response keys ("ö", "ä", ".", "-")
-    % feedback in case of wrong answer
-    % randomized target color
+    function obj = experiment1(patient_num)
+      obj.design_gen = design_generator(obj.constants, patient_num);
+      obj.logger = logger(patient_num);
+    end
     
-    num_blocks = 8;
-    num_trails = 100;
-    %target_colors = []
+    function training_phase(obj)
+      % 8 blocks, 100 trails each
+      % timeout 20.000 ms -> trial invalid
+      % 4 response keys ("ö", "ä", ".", "-")
+      % feedback in case of wrong answer
+      % randomized target color
+      announceTraining(obj.logger);
+      
+      num_blocks = 2;
+      num_trails = 5;
+      
+      for block_num = 1:num_blocks
+        block_design = generateTrainingBlock(obj.design_gen, num_trails);
+        disp_block_intro(obj, block_num);
+        
+        for trail_num = 1:size(block_design, 1)
+          targetColor = block_design(trail_num, 1);
+          coherentFraction = block_design(trail_num, 2);
+          direction = block_design(trail_num, 3);
+          responseSetCodes = KbName(obj.constants.direction_keys);
+          
+          [rt, timeout_exp, correct] = presentStimulus(obj, targetColor, coherentFraction, direction, 10, responseSetCodes);
+          logTrainigTrail(obj.logger, block_num, trail_num, rt, timeout_exp, correct);
+          WaitSecs(0.5);  
+        end
+      end
+    end
     
     
-    
-    
-    
-    %for curr_block = 1:num_blocks
-    %end
-  end
-  
-  %function generate_design(with_sequence, num_trails)
-    % generate desing with either with completely random transitions
-    % or with mixture of frequent/infrequent sequence
-    %target_color = round(rand(num_trails, 1));
-    %coherent_fraction = constants.init_coherent_fraction * ones(num_trails, 1);
-    %end
-  
+    function disp_block_intro(obj, block_num)
+      
+      pause_text =  sprintf ('Pause\nBLOCK %d \nPlease press any Button!', block_num);
+      DrawFormattedText(obj.constants.win, pause_text, obj.constants.winRect(4)/3, 'center', obj.constants.white);
+      
+      Screen('Flip', obj.constants.win);
+      
+      while true
+        if KbCheck 
+          break;
+        end;
+      end;
+      WaitSecs(0.5);
+    end
   
   
     function do_experiment(obj)
             
       try
         init_display(obj);
+        % display now initialized
         
-        % display initialized
-        presentStimulus(obj, constants.green, 0.5, obj.constants.ul);
-    
+        training_phase(obj);
+        
         ShowCursor;
         Screen('CloseAll');
+        close_file(obj.logger);
     
       catch
         Priority(0);
         ShowCursor
         Screen('CloseAll');
+        close_file(obj.logger);
         rethrow (lasterror);
       end
     end
 
 
     function init_display(obj)
-        
         Screen('Preference', 'SkipSyncTests', 1);
         Screen('Preference','SuppressAllWarnings', 1);
     
@@ -94,27 +113,59 @@ classdef experiment1 < handle
         vbl = Screen('Flip', obj.constants.win);
     end
     
-    function presentStimulus(obj, targetColor, coherentFraction, direction)
+    function [rt, timeout_exp, correct] = presentStimulus(obj, targetColor, coherentFraction, direction, timeout, responseSetCodes)
       
       apperture = aperture(obj.constants, targetColor, coherentFraction, direction);
-    
+      
+      vbl_0 = 0;
       vbl = 0;
+      
+      flush_keyboard();
     
       while true
     
         if vbl > 0
           draw(apperture);
           Screen('DrawingFinished', obj.constants.win); % Tell PTB that no further drawing commands will follow before Screen('Flip')
-        end;
-    
-        if KbCheck 
+        end
+          
+        % timeout happened
+        if vbl - vbl_0 >= timeout
+          timeout_exp = true;      
+          rt = NaN;
+          correct = NaN;
           break;
-        end;
+        end
+        
+        [single_pressed, secs, keyName] = checkForSingleKey(responseSetCodes);
+        
+        % user pressed a valid key
+        if single_pressed
+          timeout_exp = false;
+          rt = secs - vbl_0;
+          correct = evaluateResponse(obj, keyName, targetColor, direction, responseSetCodes);
+          break;
+        end
         
         move_dots(apperture, targetColor, coherentFraction, direction);
-      
+        
         vbl = Screen('Flip', obj.constants.win, vbl + (constants.waitframes-0.5)*obj.constants.ifi);
+        
+        if vbl_0 == 0
+          vbl_0 = vbl;
+        end
+      end
+      % clear screen
+      Screen('Flip', obj.constants.win);
+    end
     
+    
+    function correct = evaluateResponse(obj, keyName, targetColor, direction, responseSetCodes)
+      %debug_here();
+      if isequal(responseSetCodes, KbName(obj.constants.direction_keys))
+        correct = obj.constants.direction_keys{direction} == keyName;
+      else
+        correct = NaN;
       end
     end
 

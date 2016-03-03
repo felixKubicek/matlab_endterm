@@ -21,10 +21,10 @@ classdef dotArray < handle
 
   methods
   
-    function obj = dotArray(constants, num_dots, color, rmin, rmax, center, numCoherentDots, coherentDirection)
+    function obj = dotArray(constants, numDots, colorID, rmin, rmax, center, numCoherentDots, coherentDirectionID)
       obj.win = constants.win;
-      obj.num_dots = num_dots;
-      obj.color = color;
+      obj.num_dots = numDots;
+      obj.color = constants.dot_colors{colorID};
       obj.width = constants.dot_width * constants.ppd;
       obj.pfs = constants.dot_speed * constants.ppd / constants.fps;
       obj.rmin = rmin;
@@ -34,11 +34,12 @@ classdef dotArray < handle
       % age shift depends on flip interval
       obj.age_shift = uint16(constants.ifi*1000);
       % set initial dot age (equally distributed, 0-200ms)
-      obj.age = getAges(obj, num_dots);
+      obj.age = getAges(obj, numDots);
       % set initial position and direction for all dots
-      [obj.x obj.y] = getPositions(obj, num_dots);
-      [obj.dx obj.dy] = getDirections(obj, num_dots);
+      [obj.x obj.y] = getPositions(obj, numDots);
+      [obj.dx obj.dy] = getDirections(obj, numDots);
       
+      coherentDirection = constants.direction_values(coherentDirectionID);
       % set same direction for coherent dots
       if numCoherentDots
         [obj.dx(1:numCoherentDots) obj.dy(1:numCoherentDots)] = pol2cart(coherentDirection*ones(1, numCoherentDots),

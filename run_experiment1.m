@@ -1,4 +1,5 @@
 clear all;
+KbName('UnifyKeyNames');
 addpath('classes/');
 addpath('lib/');
 

@@ -10,13 +10,13 @@ classdef aperture < handle
   end
 
   methods
-    function obj = aperture(constants, targetColor, coherentFraction, coherentDirection)
+    function obj = aperture(constants, targetColorID, coherentFraction, coherentDirection)
         
       obj.radius_min = constants.apperture_min_radius * constants.ppd;
       obj.radius_max = constants.apperture_max_radius * constants.ppd;
 
       % calculate center of aperture
-      [obj.center(1) obj.center(2)] = RectCenter(constants.winRect)
+      [obj.center(1) obj.center(2)] = RectCenter(constants.winRect);
 
       obj.fixation = fixation(constants, obj.center);
       
@@ -25,7 +25,7 @@ classdef aperture < handle
       % coherent fraction refers to only one dot color ( 0 <= fraction <= 0.5)
       numCoherentDots = min(round(coherentFraction*(constants.num_dots)), constants.num_dots/2);
       
-      if isequal(targetColor, constants.red)
+      if targetColorID == constants.red
         redCoherentDots = numCoherentDots;
       else
         greenCoherentDots = numCoherentDots;
