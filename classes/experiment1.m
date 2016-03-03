@@ -14,32 +14,79 @@ classdef experiment1 < handle
     end
     
     
-    %function obj = getCohDisThresh(obj)
-    %end
+    function obj = getCohDisThresh(obj)
+      
+      num_blocks = 1;
+      num_trails = 10;
+      responseSetCodes = KbName(obj.constants.color_keys); % respond to colors
+      
+      % staircase from above and below
+      staircases = {staircase(0.5, true), staircase(0, false)};
+      
+      % if reversal of staircase threshold is saved here
+      reversal_thresholds = [];
+      
+      for block_num = 1:num_blocks
+        block_design = generatePreTrainingBlock(obj.design_gen, num_trails);
+        disp_block_intro(obj, block_num, responseSetCodes);
+        
+        for trail_num = 1:size(block_design, 1)
+        
+          % choose randomly one of 2 staircases
+          which_staircase_ind = randi(length(staircases));
+          which_staircase = staircases{which_staircase_ind};
+          
+          targetColor = block_design(trail_num, 1);
+          direction = block_design(trail_num, 2);
+          coherentFraction = which_staircase.coherence_value;
+          timeout = 100; % 100 sec
+          
+          [rt, timeout_exp, correct] = presentStimulus(obj, targetColor, coherentFraction, direction, timeout, responseSetCodes);
+          
+          if correct
+            [reversal_happend, reversal_thresh] = stimulusYes(which_staircase);
+          else
+            [reversal_happend, reversal_thresh] = stimulusNo(which_staircase);
+          end
+          
+          if reversal_happend
+            reversal_thresholds(end+1) = reversal_thresh;
+          end
+          
+          logStaircase(obj.logger, correct, which_staircase_ind, which_staircase);
+          
+          if staircases{1}.reversals > 1 && staircases{2}.reversals > 1
+            break;
+          end
+        
+        end
+          
+      end
+    
+    end
     
     
     
     
-    function training_phase(obj)
+    function training_phase(obj, coherentFraction)
       % 8 blocks, 100 trails each
       % timeout 20.000 ms -> trial invalid
       % 4 response keys ("d", "f", "x", "c")
-      % feedback in case of wrong answer
       % randomized target color
-      announceTraining(obj.logger);
       
-      num_blocks = 2;
-      num_trails = 5;
+      announceTraining(obj.logger);
+      responseSetCodes = KbName(obj.constants.direction_keys); % set direction keys as response set
+      
+      num_blocks = 2; % 8;
+      num_trails = 5; % 100;
       
       for block_num = 1:num_blocks
         block_design = generateTrainingBlock(obj.design_gen, num_trails);
-        disp_block_intro(obj, block_num);
+        disp_block_intro(obj, block_num, responseSetCodes);
         
         for trail_num = 1:size(block_design, 1)
           targetColor = block_design(trail_num, 1);
-          coherentFraction = block_design(trail_num, 2);
-          direction = block_design(trail_num, 3);
-          responseSetCodes = KbName(obj.constants.direction_keys);
+          direction = block_design(trail_num, 2);
           
           [rt, timeout_exp, correct] = presentStimulus(obj, targetColor, coherentFraction, direction, 10, responseSetCodes);
           logTrainigTrail(obj.logger, block_num, trail_num, rt, timeout_exp, correct);
@@ -48,14 +95,22 @@ classdef experiment1 < handle
     end
     
     
-    function disp_block_intro(obj, block_num)
+    function disp_block_intro(obj, block_num, responseSetCodes)
       pause_text =  sprintf ('Pause\nBLOCK %d \nPlease press any Button!\n\n', block_num);
-         
-      ul_help = sprintf('upper_left:  %c\n', obj.constants.direction_keys{constants.ul});
-      ll_help = sprintf('lower_left:  %c\n', obj.constants.direction_keys{constants.ll});
-      ur_help = sprintf('upper_right: %c\n', obj.constants.direction_keys{constants.ur});
-      lr_help = sprintf('lower_right: %c\n', obj.constants.direction_keys{constants.lr});
-      key_help_text = strcat('Direction to key mappings:\n', ul_help, ll_help, ur_help, lr_help);
+      
+      if isequal(responseSetCodes, KbName(obj.constants.direction_keys))
+        ul_help = sprintf('upper_left:  %c\n', obj.constants.direction_keys{constants.ul});
+        ll_help = sprintf('lower_left:  %c\n', obj.constants.direction_keys{constants.ll});
+        ur_help = sprintf('upper_right: %c\n', obj.constants.direction_keys{constants.ur});
+        lr_help = sprintf('lower_right: %c\n', obj.constants.direction_keys{constants.lr});
+        key_help_text = strcat('Direction key mappings:\n', ul_help, ll_help, ur_help, lr_help);
+      elseif isequal(responseSetCodes, KbName(obj.constants.color_keys))
+        red_help   = sprintf('red:    %c\n', obj.constants.color_keys{constants.red});
+        green_help = sprintf('green:  %c\n', obj.constants.color_keys{constants.green});
+        key_help_text = strcat('Color key mappings:\n', red_help, green_help);
+      else
+        key_help_text = '';
+      end
       
       [nx, ny] = DrawFormattedText(obj.constants.win, pause_text, obj.constants.winRect(4)/3, 'center', obj.constants.white);
       DrawFormattedText(obj.constants.win, key_help_text, nx, ny, obj.constants.white);
@@ -68,8 +123,12 @@ classdef experiment1 < handle
     function do_experiment(obj)
       try
         init_display(obj);
+        
+        %getCohDisThresh(obj);
+        
+        
         % display now initialized
-        training_phase(obj);
+        training_phase(obj, 0.5);
         
         ShowCursor;
         Screen('CloseAll');

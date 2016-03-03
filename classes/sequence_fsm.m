@@ -53,6 +53,14 @@ classdef sequence_fsm < handle
       directions = calc_directions';
     end
     
+    
+    function directions = generateRandomSeq(obj, num_trails)
+      % same probability for each direction
+      rand_indices = randi(length(obj.freq_seq), num_trails, 1);
+      directions = obj.freq_seq(rand_indices)';
+    end
+    
+    
   end
   
 end

@@ -21,6 +21,11 @@ classdef logger < handle
       logLine(obj, t_line);
     end
     
+    function logStaircase(obj, correct, staircase_num, staircase)
+      t_line = sprintf('id: %d; correct: %d; reversals: %d; coherence: %f; correct_responses: %d', staircase_num, correct, staircase.reversals, staircase.coherence_value, staircase.num_correct_responses);
+      logLine(obj, t_line);
+    end
+    
     
     function logLine(obj, log_str)
       fprintf(obj.result_file, '%s\n', log_str);

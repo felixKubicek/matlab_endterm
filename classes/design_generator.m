@@ -22,7 +22,13 @@ classdef design_generator < handle
       directions = generateRegularSeq(obj.seq_fsm, num_trails);
       targetColors = generateColors(obj, num_trails);
       fractions = obj.fraction_thresh * ones(num_trails, 1);
-      tblock = [targetColors fractions directions];
+      tblock = [targetColors directions];
+    end
+    
+    function ptblock = generatePreTrainingBlock(obj, num_trails)
+      directions = generateRandomSeq(obj.seq_fsm, num_trails);
+      targetColors = generateColors(obj, num_trails);
+      ptblock = [targetColors directions];
     end
     
   end
