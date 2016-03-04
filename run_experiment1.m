@@ -1,5 +1,9 @@
 % Felix Kubicek - Matr-Nr. 749062
 
+% some parts of code are adopted from
+  % Dr. Eike Richter (keyboard input)
+  % Prof. Dr. Jochen Laubrock (DotDemoSimple.m)
+
 clear all;
 KbName('UnifyKeyNames');
 addpath('classes/');
