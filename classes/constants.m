@@ -14,7 +14,7 @@ classdef constants < handle
     fixation_center_radius = 0.08;
     apperture_min_radius = 0.5; % minimum radius of annulus in degrees
     apperture_max_radius = 5; % maximum radius of annulus in degrees
-    coherent_fraction_thresh = 0.5; % fixed coherent fraction threshold
+    estimated_coherent_fraction_thresh = 0.15833; % estimation of coherence discrimination threshold
     % directions (within aperture)
     lr = 1; % lower-right 
     ll = 2; % lower-left

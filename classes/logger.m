@@ -16,13 +16,27 @@ classdef logger < handle
       logLine(obj, 'start of training phase');
     end
     
+    
     function logTrainigTrail(obj, block_id, trail_id, rt, timeout_exp, correct);
       t_line = sprintf('block: %d; trail: %d; rt: %f; valid: %d; correct: %d', block_id, trail_id, rt, ~timeout_exp, correct);
       logLine(obj, t_line);
     end
     
+    
     function logStaircase(obj, correct, staircase_num, staircase)
-      t_line = sprintf('id: %d; correct: %d; reversals: %d; coherence: %f; correct_responses: %d', staircase_num, correct, staircase.reversals, staircase.coherence_value, staircase.num_correct_responses);
+      t_line = sprintf('id: %d; correct: %d; reversals: %d; coherence: %f; correct_responses: %d; above_thresh: %d', staircase_num, correct, staircase.reversals, staircase.coherence_value, staircase.num_correct_responses, staircase.above_thresh);
+      logLine(obj, t_line);
+    end
+    
+    
+    function informCalcThresh(obj, calculated_threshold)
+       t_line = sprintf('calculated coherence discrimination threshold: %f', calculated_threshold);
+       logLine(obj, t_line);
+    end
+    
+    
+    function informEstThresh(obj, estimated_threshold)
+      t_line = sprintf('no coherence discrimination threshold could be calculated (use %f as an estimation)', estimated_threshold);
       logLine(obj, t_line);
     end
     

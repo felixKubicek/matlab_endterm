@@ -14,10 +14,12 @@ classdef experiment1 < handle
     end
     
     
-    function obj = getCohDisThresh(obj)
-      
+    function coherenceThreshold = getCohDisThresh(obj)
+      % pre-training -> determine coherence discrimination threshold
       num_blocks = 1;
-      num_trails = 10;
+      num_trails = 120;
+      reversals_per_staircase = 10;
+      
       responseSetCodes = KbName(obj.constants.color_keys); % respond to colors
       
       % staircase from above and below
@@ -55,17 +57,23 @@ classdef experiment1 < handle
           
           logStaircase(obj.logger, correct, which_staircase_ind, which_staircase);
           
-          if staircases{1}.reversals > 1 && staircases{2}.reversals > 1
+          if (staircases{1}.reversals >= reversals_per_staircase) && (staircases{2}.reversals >= reversals_per_staircase)
             break;
           end
-        
         end
-          
+        
+        if (staircases{1}.reversals >= 10) && (staircases{2}.reversals >= 10)
+          % linke in the paper -> if more than 10 reversals per staircase -> use mean of final 6 reversals
+          coherenceThreshold = mean(reversal_thresholds(end-5:end));
+          informCalcThresh(obj.logger, coherenceThreshold);
+        else
+          % simplification -> just use estimation of threshold
+          coherenceThreshold = obj.constants.estimated_coherent_fraction_thresh;
+          informEstThresh(obj.logger, coherenceThreshold);
+        end
       end
     
     end
-    
-    
     
     
     function training_phase(obj, coherentFraction)
@@ -123,13 +131,11 @@ classdef experiment1 < handle
     function do_experiment(obj)
       try
         init_display(obj);
-        
-        %getCohDisThresh(obj);
-        
-        
         % display now initialized
-        training_phase(obj, 0.5);
-        
+        % determine coherence discrimination threshold
+        coherenceThresh = getCohDisThresh(obj);
+        % perform training
+        training_phase(obj, coherenceThresh);
         ShowCursor;
         Screen('CloseAll');
         close_file(obj.logger);

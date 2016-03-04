@@ -1,15 +1,16 @@
 classdef staircase < handle
 
   properties(Constant)
-    delta_init = 0.2;
-    max_coherence = 0.5;
+    delta_init = 0.2; % initial delta value to increase/decrease coherence_value
+    max_coherence = 0.5; % maximum coherence possible
+    min_coherence = 0.01; % minimum coherence (5 dots)
   end
 
   properties
     coherence_value;
-    above_thresh;
+    above_thresh; % either above or below threshold
     reversals;
-    num_correct_responses;
+    num_correct_responses; % save number of last independent correct responses
   end
   
     
@@ -17,7 +18,7 @@ classdef staircase < handle
     function obj = staircase(coherence_value, above_thresh)
       obj.coherence_value = coherence_value;
       obj.above_thresh = above_thresh;
-      obj.num_correct_responses = 0; % save number of last independent correct responses
+      obj.num_correct_responses = 0; 
       obj.reversals = 0;
     end
     
@@ -27,7 +28,7 @@ classdef staircase < handle
       % increase correct responses
       ++obj.num_correct_responses;
       
-      % 3 times yes -> decrease coherence value
+      % 3 correct responses in row -> decrease coherence value
       if obj.num_correct_responses >= 3
         % reset correct responses
         obj.num_correct_responses = 0;
@@ -71,14 +72,14 @@ classdef staircase < handle
   
   
     function increaseCoherenceVal(obj)
-      % increase coherence value (initial delta value is halved every reversal)
-      obj.coherence_value = min(obj.coherence_value + (obj.delta_init * (1/(2^obj.reversals))), obj.max_coherence);
+      % increase coherence value (initial delta value decreases linearly)
+      obj.coherence_value = min(obj.coherence_value + (obj.delta_init * (1/(obj.reversals+1))), obj.max_coherence);
     end
     
     
     function decreaseCoherenceVal(obj)
-      % decrease coherence value (initial delta value is halved every reversal)
-      obj.coherence_value = min(obj.coherence_value - (obj.delta_init * (1/(2^obj.reversals))), obj.max_coherence);
+      % decrease coherence value (initial delta value decreases linearly)
+      obj.coherence_value = max(obj.coherence_value - (obj.delta_init * (1/(obj.reversals+1))), obj.min_coherence);
     end
   end
 end
